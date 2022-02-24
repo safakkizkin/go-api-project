@@ -47,10 +47,9 @@ func AddNewUser(u *User) (err error) {
 	return nil
 }
 
-
 func CheckIfUserPresent(user *User) (err error) {
 	if err := config.DB.Where("Mail = ?", user.Mail).First(user).Error; err != nil {
-		return  err
+		return err
 	}
 
 	if user.Model.ID > 0 {

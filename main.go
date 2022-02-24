@@ -9,6 +9,7 @@ import (
 	"safakkizkin/config"
 	"safakkizkin/helpers"
 	"safakkizkin/migrations"
+	"safakkizkin/models"
 	"safakkizkin/routers"
 )
 
@@ -19,7 +20,11 @@ func main() {
 }
 
 func handler() {
-	result := getEnviroment()
+	result := getEnvironment("environment.json")
+	if result == nil {
+		return
+	}
+
 	dbName := result["DB_NAME"]
 	dbPass := result["DB_PASS"]
 	dbHost := result["DB_HOST"]
@@ -30,18 +35,28 @@ func handler() {
 		fmt.Println(err)
 	}
 
-	defer config.DB.Close()
-	migrations.InitialMigration()
+	mailConfig := getEnvironment("mailConfig.json")
+	if mailConfig != nil {
+		mail := models.SetMailConfig(mailConfig)
+		isMailSet := helpers.SetMail(mail)
+		defer config.DB.Close()
+		migrations.InitialMigration()
+		if isMailSet {
+			helpers.SetReminder()
+			go helpers.Check()
+		}
+	}
 
-	helpers.SetReminder()
-	go helpers.Check()
 	r := routers.SetupRouters()
-	r.Run(":3001")
+	err := r.Run(":3001")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
-// GetEnviroment to get env.
-func getEnviroment() map[string]string {
-	jsonFile, err := os.Open("environment.json")
+// GetEnvironment to get env.
+func getEnvironment(configFileName string) map[string]string {
+	jsonFile, err := os.Open(configFileName)
 	if err != nil {
 		fmt.Println("File is not exist or can not read it. err:", err)
 	}
@@ -49,6 +64,11 @@ func getEnviroment() map[string]string {
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var result map[string]string
-	json.Unmarshal([]byte(byteValue), &result)
+	err = json.Unmarshal(byteValue, &result)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+
 	return result
 }

@@ -35,6 +35,14 @@ func GetAllTasks(t *[]Task) (err error) {
 	return nil
 }
 
+func GetAllTasksByDate(t *[]Task) (err error) {
+	if err = config.DB.Where("end_date > ?", time.Now()).Find(t).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func checkTaskOverlap(u *User, t *Task) (err error) {
 	var tasks []Task
 	err = GetAllTasksByUser(&tasks, u)
@@ -44,8 +52,8 @@ func checkTaskOverlap(u *User, t *Task) (err error) {
 
 	isThereOverlap := false
 	for _, eachTask := range tasks {
-		t1 := eachTask.StartDate.Before(t.EndDate)
-		t2 := eachTask.EndDate.After(t.EndDate)
+		t1 := eachTask.StartDate.After(t.StartDate) && eachTask.EndDate.Before(t.StartDate)
+		t2 := eachTask.StartDate.After(t.EndDate) && eachTask.EndDate.Before(t.EndDate)
 		if t1 || t2 {
 			isThereOverlap = true
 			break
