@@ -1,1 +1,7 @@
-//There will be a DB configuration here.
+{
+  "DB_NAME": "sql11475110",
+  "DB_PASS": "fSyt1dXaEG",
+  "DB_HOST": "sql11.freemysqlhosting.net",
+  "DB_PORT": "3306",
+  "DB_USER": "sql11475110"
+}

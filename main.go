@@ -1,4 +1,4 @@
-package go_api_project
+package main
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"safakkizkin/config"
+	"safakkizkin/migrations"
+	"safakkizkin/routers"
 )
 
 var err error
@@ -26,12 +28,17 @@ func handler() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	defer config.DB.Close()
+	migrations.InitialMigration()
+
+	r := routers.SetupRouters()
+	r.Run(":3001")
 }
 
 // GetEnviroment to get env.
 func getEnviroment() map[string]string {
-	jsonFile, err := os.Open("enviroment.json")
+	jsonFile, err := os.Open("environment.json")
 	if err != nil {
 		fmt.Println("File is not exist or can not read it. err:", err)
 	}
