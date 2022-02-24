@@ -10,12 +10,13 @@ import (
 // Task model
 type Task struct {
 	gorm.Model
-	Name           string    `json:"Name"`
-	UserId         uint      `json:"UserId"`
-	UserMail       string    `json:"UserMail"`
-	StartDate      time.Time `json:"StartDate"`
-	EndDate        time.Time `json:"EndDate"`
-	ReminderPeriod uint16    `json:"ReminderPeriod"`
+	Name           string        `json:"Name"`
+	UserId         uint          `json:"UserId"`
+	UserMail       string        `json:"UserMail"`
+	StartDate      time.Time     `json:"StartDate"`
+	EndDate        time.Time     `json:"EndDate"`
+	ReminderPeriod time.Duration `json:"ReminderPeriod"`
+	LastRemindTime time.Time     `json:"LastRemindTime"`
 }
 
 func GetAllTasksByUser(t *[]Task, u *User) (err error) {
@@ -53,6 +54,14 @@ func checkTaskOverlap(u *User, t *Task) (err error) {
 
 	if isThereOverlap {
 		return errors.New("task: there is already a task assigned to this user")
+	}
+
+	return nil
+}
+
+func UpdateReminderDate(u *Task) (err error) {
+	if err := config.DB.Model(&User{}).Where("ID = ?", u.Model.ID).Update("last_reminder_time", time.Now()).Error; err != nil {
+		return err
 	}
 
 	return nil

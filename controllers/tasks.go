@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"safakkizkin/helpers"
 	"safakkizkin/httputil"
 	"safakkizkin/models"
 )
@@ -47,6 +48,7 @@ func DeleteTask(ctx *gin.Context) {
 		return
 	}
 
+	helpers.SetReminder()
 	ctx.JSON(http.StatusOK, nil)
 }
 
@@ -64,5 +66,6 @@ func AddNewTask(ctx *gin.Context) {
 		return
 	}
 
+	helpers.SetReminder()
 	ctx.JSON(http.StatusOK, task)
 }

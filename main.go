@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"safakkizkin/config"
+	"safakkizkin/helpers"
 	"safakkizkin/migrations"
 	"safakkizkin/routers"
 )
@@ -32,6 +33,8 @@ func handler() {
 	defer config.DB.Close()
 	migrations.InitialMigration()
 
+	helpers.SetReminder()
+	go helpers.Check()
 	r := routers.SetupRouters()
 	r.Run(":3001")
 }
