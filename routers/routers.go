@@ -18,6 +18,13 @@ func SetupRouters() *gin.Engine {
 			v1users.DELETE(":mail", controllers.DeleteUser)
 			v1users.POST("", controllers.AddNewUser)
 		}
+		v1tasks := v1.Group("tasks")
+		{
+			v1tasks.GET("", controllers.GetTasks)
+			v1tasks.GET(":id", controllers.GetTask)
+			v1tasks.DELETE(":id", controllers.DeleteTask)
+			v1tasks.POST("", controllers.AddNewTask)
+		}
 	}
 
 	return r

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"safakkizkin/config"
@@ -44,4 +45,17 @@ func AddNewUser(u *User) (err error) {
 	}
 
 	return nil
+}
+
+
+func CheckIfUserPresent(user *User) (err error) {
+	if err := config.DB.Where("Mail = ?", user.Mail).First(user).Error; err != nil {
+		return  err
+	}
+
+	if user.Model.ID > 0 {
+		return nil
+	}
+
+	return errors.New("user: not found")
 }
